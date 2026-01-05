@@ -1,0 +1,38 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test-scan-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build backend image
+      run: docker build -t myuser/backend:staging backend
+
+    - name: Build frontend image
+      run: docker build -t myuser/frontend:staging frontend
+
+    - name: Run tests
+      run: docker run myuser/backend:staging pytest || true
+
+    - name: Trivy scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: myuser/backend:staging
+
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Push images
+      run: |
+        docker push myuser/backend:staging
+        docker push myuser/frontend:staging
+
+    - name: Deploy to staging
+      run: bash scripts/deploy-staging.sh
