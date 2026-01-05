@@ -3,20 +3,21 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 # -------- Runtime stage --------
 FROM python:3.11-slim
 
-RUN useradd appuser
+RUN useradd -m appuser
+
 WORKDIR /app
 
-COPY --from=builder /root/.local /root/.local
+COPY --from=builder /usr/local /usr/local
 COPY app.py .
 
-ENV PATH=/root/.local/bin:$PATH
-
 USER appuser
+
 EXPOSE 5000
 
 CMD ["python", "app.py"]
