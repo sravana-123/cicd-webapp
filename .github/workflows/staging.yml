@@ -21,6 +21,19 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Scan backend image with Trivy
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: sravana123/backend:staging
+          severity: CRITICAL,HIGH
+          exit-code: 0
+
+      - name: Scan frontend image with Trivy
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: sravana123/frontend:staging
+          severity: CRITICAL,HIGH
+          exit-code: 0
 
       - name: Build and push backend image
         run: |
