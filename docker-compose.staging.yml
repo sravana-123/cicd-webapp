@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  backend:
+    image: sravana123/backend:staging
+    container_name: backend-staging
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=staging
+    restart: always
+
+  frontend:
+    image: sravana123/frontend:staging
+    container_name: frontend-staging
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: always
